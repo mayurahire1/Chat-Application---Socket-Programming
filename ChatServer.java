@@ -1,42 +1,48 @@
 import java.io.*;
 import java.net.*;
 
-class ChatServer
+public class ChatServer
 {
-    public static void main(String A[]) throws Exception
+    public static void main(String args[])
     {
-        System.out.println("Server application is running");
-
-        ServerSocket ssobj = new ServerSocket(2100);
-
-        System.out.println("Server is waiting at PORT 2100");
-
-        Socket sobj = ssobj.accept();
-
-        System.out.println("Client request gets accepted sucessfully");
-
-        PrintStream pobj = new PrintStream(sobj.getOutputStream());
-
-        BufferedReader bobj1 = new BufferedReader(new InputStreamReader(sobj.getInputStream()));
-
-        BufferedReader bobj2 = new BufferedReader(new InputStreamReader(System.in));
-
-        System.out.println("-----------------------------------------------------");
-        System.out.println("-----------Marvellous Chat Server---------------------");
-        System.out.println("-----------------------------------------------------");
-
-        String str1 = null , str2 = null;
-
-        while((str1 = bobj1.readLine()) != null )
+        try
         {
-            System.out.println("Client Says: "+str1);
-            System.out.println("Enter msg for client: ");
+            System.out.println("Server is Starting...");
 
-            str2 = bobj2.readLine();
-            pobj.println(str2);
+            ServerSocket server = new ServerSocket(2100);
+
+            System.out.println("Waiting for Client...");
+
+            Socket socket = server.accept();
+
+            System.out.println("Client Connected Successfully!");
+
+            PrintStream out = new PrintStream(socket.getOutputStream());
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
+
+            System.out.println("--------------------------------------------");
+            System.out.println("        Chat Server");
+            System.out.println("--------------------------------------------");
+
+            ReadThread read = new ReadThread(in);
+            WriteThread write = new WriteThread(out);
+
+            read.start();
+            write.start();
+
+            read.join();
+            write.join();
+
+            socket.close();
+            server.close();
+
+            System.out.println("Server Closed.");
         }
-        
-        sobj.close();
-        ssobj.close();
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }

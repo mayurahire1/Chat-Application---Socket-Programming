@@ -1,40 +1,43 @@
 import java.io.*;
 import java.net.*;
 
-class ChatClient
+public class ChatClient
 {
-    public static void main(String A[]) throws Exception
+    public static void main(String args[])
     {
-        System.out.println("Client application is running");
+        try
+        {
+            System.out.println("Client is Starting...");
 
-        Socket sobj = new Socket("localhost",2100);
+            Socket socket = new Socket("localhost",2100);
 
-        System.out.println("Connection is Successful with server");
+            System.out.println("Connected to Server.");
 
-        PrintStream pobj = new PrintStream(sobj.getOutputStream());
+            PrintStream out = new PrintStream(socket.getOutputStream());
 
-        BufferedReader bobj1 = new BufferedReader(new InputStreamReader(sobj.getInputStream()));
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(socket.getInputStream()));
 
-        BufferedReader bobj2 = new BufferedReader(new InputStreamReader(System.in));
+            System.out.println("--------------------------------------------");
+            System.out.println("        Chat Client");
+            System.out.println("--------------------------------------------");
 
-        System.out.println("-----------------------------------------------------");
-        System.out.println("-----------Mrvellous Chat Client---------------------");
-        System.out.println("-----------------------------------------------------");
+            ReadThread read = new ReadThread(in);
+            WriteThread write = new WriteThread(out);
 
-        String str1 = null , str2 = null;
+            read.start();
+            write.start();
 
-        System.out.println("Enter msg for server: ");
+            read.join();
+            write.join();
 
-        while (!(str1 = bobj2.readLine()).equals("end"))
-        { 
-            pobj.println(str1);
-            str2= bobj1.readLine();
-            System.out.println("Server Says: "+str2);
-            System.out.println("Enter msg for server: ");
+            socket.close();
+
+            System.out.println("Client Closed.");
         }
-
-        sobj.close();
-        
-
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
     }
 }
