@@ -1,1 +1,1 @@
-# Chat-Application---Socket-Programming
+# Chat-Application | Java Socket-Programming, Multithreading
